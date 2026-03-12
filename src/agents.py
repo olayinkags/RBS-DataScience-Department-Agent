@@ -1,4 +1,6 @@
 import os
+import time
+from pathlib import Path
 from unittest import result
 from dotenv import load_dotenv
 
@@ -9,7 +11,8 @@ from langgraph.checkpoint.memory import MemorySaver
 
 from src.tools import get_tools
 
-load_dotenv()
+load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env", override=True)
+#load_dotenv()
 
 SYSTEM_PROMPT = """You are an expert admissions advisor for Rome Business School (RBS), \
 specialising exclusively in the Executive Master in Data Science Management programme.
@@ -47,7 +50,7 @@ def get_llm():
     """Initialise Gemini with low temperature for factual accuracy."""
     return ChatGoogleGenerativeAI(
         model="models/gemini-2.5-flash",       
-        google_api_key="AIzaSyBYj8oXuInfL-J5PUH18PBlo083Mon8iz0",
+        google_api_key=os.getenv("GOOGLE_API_KEY"),
         temperature=0.2,
         convert_system_message_to_human=True,
         timeout=60,
@@ -85,6 +88,7 @@ def build_agent():
     return agent
 
 
+
 def run_agent(agent, question: str, thread_id: str = "default") -> dict:
     """
     Send a question to the agent and return a structured response.
@@ -98,56 +102,80 @@ def run_agent(agent, question: str, thread_id: str = "default") -> dict:
         dict with answer, tools_used, steps, and state keys.
     """
     config = {"configurable": {"thread_id": thread_id}}
+    max_retries = 3
 
-    try:
-        result = agent.invoke(
-            {"messages": [("user", question)]},
-            config=config,
-        )
+    for attempt in range(max_retries):
+        try:
+            result = agent.invoke(
+                {"messages": [("user", question)]},
+                config=config,
+            )
 
-        messages = result.get("messages", [])
-        last_msg = messages[-1] if messages else None
+            messages = result.get("messages", [])
+            last_msg = messages[-1] if messages else None
 
-        if last_msg is None:
-            answer = "No response generated."
-        elif isinstance(last_msg.content, str):
-            # Normal case — plain string, use directly
-            answer = last_msg.content
-        elif isinstance(last_msg.content, list):
-            # Block format — find all 'text' type blocks and join them
-             answer = "\n".join(
-            block.get("text", "")
-            for block in last_msg.content
-                if isinstance(block, dict) and block.get("type") == "text"
-             )
-        else:
-            answer = str(last_msg.content)
+            if last_msg is None:
+                answer = "No response generated."
+            elif isinstance(last_msg.content, str):
+                answer = last_msg.content
+            elif isinstance(last_msg.content, list):
+                answer = "\n".join(
+                    block.get("text", "")
+                    for block in last_msg.content
+                    if isinstance(block, dict) and block.get("type") == "text"
+                )
+            else:
+                answer = str(last_msg.content)
 
-        tools_used = []
-        steps = []
-        for msg in messages:
-            if hasattr(msg, "tool_calls") and msg.tool_calls:
-                for tc in msg.tool_calls:
-                    tool_name = tc.get("name", "unknown")
-                    tool_input = tc.get("args", {})
-                    tools_used.append(tool_name)
-                    steps.append({"tool": tool_name, "input": tool_input})
+            tools_used = []
+            steps = []
+            for msg in messages:
+                if hasattr(msg, "tool_calls") and msg.tool_calls:
+                    for tc in msg.tool_calls:
+                        tool_name = tc.get("name", "unknown")
+                        tool_input = tc.get("args", {})
+                        tools_used.append(tool_name)
+                        steps.append({"tool": tool_name, "input": tool_input})
 
-        return {
-            "answer": answer,
-            "tools_used": list(dict.fromkeys(tools_used)),
-            "steps": steps,
-            "state": result,
-        }
+            return {
+                "answer": answer,
+                "tools_used": list(dict.fromkeys(tools_used)),
+                "steps": steps,
+                "state": result,
+            }
 
-    except Exception as e:
-        return {
-            "answer": (
-                f"I encountered an error processing your question. "
-                f"Please try rephrasing it, or contact admissions directly:\n"
-                f"https://romebusinessschool.ng\n\nError: {str(e)}"
-            ),
-            "tools_used": [],
-            "steps": [],
-            "state": {},
-        }
+        except Exception as e:
+            error_str = str(e)
+
+            # Network errors — retry with exponential backoff
+            network_errors = ["getaddrinfo failed", "Connection refused",
+                              "ConnectionError", "TimeoutError", "RemoteDisconnected"]
+
+            is_network_error = any(err in error_str for err in network_errors)
+
+            if is_network_error and attempt < max_retries - 1:
+                wait = 2 ** attempt  # 1s → 2s → 4s
+                print(f"Network error on attempt {attempt + 1}, retrying in {wait}s: {error_str}")
+                time.sleep(wait)
+                continue  # retry
+
+            # Non-network error or all retries exhausted
+            if is_network_error:
+                friendly = (
+                    "A network connection issue occurred. "
+                    "Please check your internet connection and try again.\n\n"
+                    f"Error: {error_str}"
+                )
+            else:
+                friendly = (
+                    f"I encountered an error processing your question. "
+                    f"Please try rephrasing it, or contact admissions directly:\n"
+                    f"https://romebusinessschool.ng\n\nError: {error_str}"
+                )
+
+            return {
+                "answer": friendly,
+                "tools_used": [],
+                "steps": [],
+                "state": {},
+            }

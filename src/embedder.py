@@ -6,8 +6,7 @@ from langchain_pinecone import PineconeVectorStore
 from pathlib import Path
 
 # Path to your .env
-dotenv_path = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(dotenv_path)
+load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env", override=True)
 
 print("GOOGLE_API_KEY loaded:", os.getenv("GOOGLE_API_KEY") is not None)
 print("PINECONE_API_KEY loaded:", os.getenv("PINECONE_API_KEY") is not None)
@@ -15,7 +14,7 @@ print("PINECONE_API_KEY loaded:", os.getenv("PINECONE_API_KEY") is not None)
 def get_embeddings():
     return GoogleGenerativeAIEmbeddings(
         model="models/gemini-embedding-001",
-        google_api_key="AIzaSyBYj8oXuInfL-J5PUH18PBlo083Mon8iz0"
+        google_api_key=os.getenv("GOOGLE_API_KEY")
     )
 
 def get_pinecone_client():

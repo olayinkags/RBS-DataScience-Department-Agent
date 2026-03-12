@@ -1,5 +1,6 @@
 
 import os
+from pathlib import Path
 from typing import Annotated
 from typing_extensions import TypedDict
 
@@ -13,7 +14,8 @@ from langgraph.prebuilt      import InjectedState
 from langchain_community.tools import DuckDuckGoSearchRun
 from src.embedder import load_vectorstore
 
-load_dotenv()
+# Points up THREE levels instead of two
+load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env", override=True)
 
 
 class RBSAgentState(TypedDict):

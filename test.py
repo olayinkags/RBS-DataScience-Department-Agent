@@ -1,16 +1,19 @@
-from google import genai
-
-client = genai.Client(api_key="AIzaSyBYj8oXuInfL-J5PUH18PBlo083Mon8iz0")
-
-print("Testing models...")
-for m in client.models.list():
-    print(m.name)
-
-
+from pathlib import Path
+from dotenv import load_dotenv
 from google import genai
 import os
+
+load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env", override=True)
 
 client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 for model in client.models.list():
     print(model.name)
+
+
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents="Say hello"
+)
+
+print(response.text)

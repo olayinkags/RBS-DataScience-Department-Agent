@@ -1,4 +1,0 @@
-.env
-chatbot\
-__pycache__\
-RBS-DataScience-Department-Agent\

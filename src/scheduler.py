@@ -1,4 +1,3 @@
-# src/scheduler.py — weekly auto re-scrape and re-index
 import logging, asyncio
 from apscheduler.schedulers.background import BackgroundScheduler
 

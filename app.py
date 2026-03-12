@@ -1,6 +1,3 @@
-# app.py — RBS Nigeria AI Agent Chatbot
-# Clean production version — tools and reasoning hidden from users
-
 import streamlit as st
 from src.agents import build_agent, run_agent
 
@@ -130,9 +127,6 @@ def load_agent():
     return build_agent()
 
 
-# ═══════════════════════════════════════════════════════════════════════
-# SIDEBAR — clean, no tool list exposed to users
-# ═══════════════════════════════════════════════════════════════════════
 with st.sidebar:
     st.markdown("""
     <div style='text-align:center; padding: 1rem 0 0.5rem;'>
@@ -226,9 +220,6 @@ with st.sidebar:
                 st.rerun()
 
 
-# ═══════════════════════════════════════════════════════════════════════
-# MAIN AREA
-# ═══════════════════════════════════════════════════════════════════════
 st.markdown("""
 <div class="rbs-header">
     <h1>🎓 Executive Master in Data Science</h1>
