@@ -1,0 +1,54 @@
+# Core LangChain
+langchain
+langchain-google-genai
+langchain-community
+langchain-pinecone
+langchain-core
+unstructured[html]
+unstructured[all-docs]
+langchain-text-splitters
+langgraph
+
+
+# LLM
+google-generativeai
+
+# Vector DB
+pinecone-client
+
+# LLM
+google-generativeai
+google-genai
+
+# Vector Database
+pinecone-client
+
+# Web Scraping
+playwright
+beautifulsoup4
+requests
+
+# PDF Handling
+pymupdf
+pdfplumber
+pypdf2
+
+# App UI
+streamlit
+
+# API Backend (optional)
+fastapi
+uvicorn
+
+# Utilities
+python-dotenv
+apscheduler
+json5
+pydantic
+
+# web search
+duckduckgo-search
+ddgs
+wikipedia
+
+
