@@ -44,10 +44,12 @@ CONTACTS (use when tools return no results):
 def get_llm():
     """Initialise Gemini with low temperature for factual accuracy."""
     return ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash",       
+        model="models/gemini-pro",       
         google_api_key="AIzaSyBYj8oXuInfL-J5PUH18PBlo083Mon8iz0",
         temperature=0.2,
         convert_system_message_to_human=True,
+        timeout=60,
+        max_retries=2
     )
 
 
