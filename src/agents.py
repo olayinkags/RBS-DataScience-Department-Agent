@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langgraph.prebuilt import create_react_agent   # ✅ correct import
+from langgraph.prebuilt import create_react_agent  
 from langgraph.checkpoint.memory import MemorySaver
 
 from src.tools import get_tools
@@ -44,7 +44,7 @@ CONTACTS (use when tools return no results):
 def get_llm():
     """Initialise Gemini with low temperature for factual accuracy."""
     return ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",        # gemini-pro is deprecated, use this
+        model="gemini-1.5-flash",       
         google_api_key="AIzaSyBYj8oXuInfL-J5PUH18PBlo083Mon8iz0",
         temperature=0.2,
         convert_system_message_to_human=True,
@@ -70,11 +70,11 @@ def build_agent():
     llm = get_llm()
     print("Gemini loaded")
 
-    agent = create_react_agent(     # ✅ was create_agent (wrong function)
+    agent = create_react_agent(    
         model=llm,
         tools=tools,
         prompt=SYSTEM_PROMPT,
-        checkpointer=checkpointer,  # ✅ moved here from run_agent (was a stray line)
+        checkpointer=checkpointer,  
     )
 
     print("LangGraph agent compiled and ready!\n")
