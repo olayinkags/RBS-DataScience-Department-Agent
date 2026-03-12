@@ -1,6 +1,8 @@
 import os
+from unittest import result
 from dotenv import load_dotenv
 
+from langchain_core import messages
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.prebuilt import create_react_agent  
 from langgraph.checkpoint.memory import MemorySaver
@@ -44,7 +46,7 @@ CONTACTS (use when tools return no results):
 def get_llm():
     """Initialise Gemini with low temperature for factual accuracy."""
     return ChatGoogleGenerativeAI(
-        model="models/gemini-pro",       
+        model="models/gemini-2.5-flash",       
         google_api_key="AIzaSyBYj8oXuInfL-J5PUH18PBlo083Mon8iz0",
         temperature=0.2,
         convert_system_message_to_human=True,
@@ -104,7 +106,22 @@ def run_agent(agent, question: str, thread_id: str = "default") -> dict:
         )
 
         messages = result.get("messages", [])
-        answer = messages[-1].content if messages else "No response generated."
+        last_msg = messages[-1] if messages else None
+
+        if last_msg is None:
+            answer = "No response generated."
+        elif isinstance(last_msg.content, str):
+            # Normal case — plain string, use directly
+            answer = last_msg.content
+        elif isinstance(last_msg.content, list):
+            # Block format — find all 'text' type blocks and join them
+             answer = "\n".join(
+            block.get("text", "")
+            for block in last_msg.content
+                if isinstance(block, dict) and block.get("type") == "text"
+             )
+        else:
+            answer = str(last_msg.content)
 
         tools_used = []
         steps = []
