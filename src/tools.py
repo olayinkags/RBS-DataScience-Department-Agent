@@ -69,6 +69,7 @@ def _format_docs(docs: list, label: str = "") -> str:
 def rbs_programme_search(
     query: str,
     tool_call_id: Annotated[str, InjectedToolCallId],
+    k: int =5,
 ) -> Command:
     """
     Search the full RBS Executive Master in Data Science Management
@@ -80,7 +81,7 @@ def rbs_programme_search(
     Args:
         query: Natural language search query about the RBS programme.
     """
-    docs    = get_vs().similarity_search(query, k=5)
+    docs    = get_vs().similarity_search(query, k=k)
     context = _format_docs(docs, "PROGRAMME SEARCH")
     found   = bool(docs) and "No relevant" not in context
 
@@ -105,6 +106,7 @@ def rbs_programme_search(
 def rbs_compare_campuses(
     query: str,
     tool_call_id: Annotated[str, InjectedToolCallId],
+    k: int =5,
 ) -> Command:
     """
     Retrieve information from BOTH RBS Nigeria AND RBS Italy campuses
@@ -120,8 +122,8 @@ def rbs_compare_campuses(
     vs = get_vs()
 
     # Search each campus separately using Pinecone metadata filter
-    nigeria_docs = vs.similarity_search(query, k=4, filter={"campus": "nigeria"})
-    italy_docs   = vs.similarity_search(query, k=4, filter={"campus": "italy"})
+    nigeria_docs = vs.similarity_search(query, k=k, filter={"campus": "nigeria"})
+    italy_docs   = vs.similarity_search(query, k=k, filter={"campus": "italy"})
 
     nigeria_text = _format_docs(nigeria_docs, "RBS NIGERIA")
     italy_text   = _format_docs(italy_docs,   "RBS ITALY")
@@ -151,6 +153,7 @@ def rbs_compare_campuses(
 def rbs_fee_lookup(
     campus: str,
     tool_call_id: Annotated[str, InjectedToolCallId],
+    k: int =5,
 ) -> Command:
     """
     Look up tuition fees, costs, payment plans, and financial information
@@ -163,8 +166,8 @@ def rbs_fee_lookup(
     query = "tuition fees cost payment plan instalment scholarship financial"
 
     if campus == "both":
-        ng_docs = vs.similarity_search(query, k=4, filter={"campus": "nigeria"})
-        it_docs = vs.similarity_search(query, k=4, filter={"campus": "italy"})
+        ng_docs = vs.similarity_search(query, k=k, filter={"campus": "nigeria"})
+        it_docs = vs.similarity_search(query, k=k, filter={"campus": "italy"})
         context = (
             "=== RBS NIGERIA — FEES ===\n" + _format_docs(ng_docs, "NIGERIA FEES") +
             "\n\n=== RBS ITALY — FEES ===\n"  + _format_docs(it_docs, "ITALY FEES")
@@ -176,7 +179,7 @@ def rbs_fee_lookup(
         if campus not in ("nigeria", "italy"):
             campus = "nigeria"  # safe default
 
-        docs    = vs.similarity_search(query, k=5, filter={"campus": campus})
+        docs    = vs.similarity_search(query, k=k, filter={"campus": campus})
         context = _format_docs(docs, f"{campus.upper()} FEES")
         found   = bool(docs)
 
@@ -199,6 +202,7 @@ def rbs_fee_lookup(
 def rbs_admission_checker(
     query: str,
     tool_call_id: Annotated[str, InjectedToolCallId],
+    k: int =5,
 ) -> Command:
     """
     Search for admission requirements, eligibility criteria, required
@@ -213,7 +217,7 @@ def rbs_admission_checker(
     """
     # Enrich the query with admission-specific keywords for better retrieval
     enriched = f"admission requirements eligibility application process documents {query}"
-    docs     = get_vs().similarity_search(enriched, k=5)
+    docs     = get_vs().similarity_search(enriched, k=k)
     context  = _format_docs(docs, "ADMISSIONS")
     found    = bool(docs)
 
@@ -236,6 +240,7 @@ def rbs_admission_checker(
 def rbs_curriculum_lookup(
     topic: str,
     tool_call_id: Annotated[str, InjectedToolCallId],
+    k: int =5,
 ) -> Command:
     """
     Look up the curriculum, modules, subjects, course content,
@@ -247,9 +252,10 @@ def rbs_curriculum_lookup(
 
     Args:
         topic: Specific subject or 'all modules' for full curriculum overview.
+        k: How many relevant chunks to retrieve from Pinecone (default 5)
     """
     enriched = f"curriculum modules subjects data science {topic} learning outcomes syllabus"
-    docs     = get_vs().similarity_search(enriched, k=6)
+    docs     = get_vs().similarity_search(enriched, k=k)
     context  = _format_docs(docs, "CURRICULUM")
     found    = bool(docs)
 
@@ -272,6 +278,7 @@ def rbs_curriculum_lookup(
 def rbs_career_outcomes(
     query: str,
     tool_call_id: Annotated[str, InjectedToolCallId],
+    k: int =5,
 ) -> Command:
     """
     Search for career services, job placement rates, alumni network,
@@ -285,7 +292,7 @@ def rbs_career_outcomes(
         query: Specific career aspect to search for.
     """
     enriched = f"career outcomes job placement alumni network salary employment {query}"
-    docs     = get_vs().similarity_search(enriched, k=5)
+    docs     = get_vs().similarity_search(enriched, k=k)
     context  = _format_docs(docs, "CAREER OUTCOMES")
     found    = bool(docs)
 
