@@ -34,7 +34,8 @@ pdfplumber
 pypdf2
 
 # App UI
-streamlit
+streamlit>=1.35.0
+protobuf>=4.25.3,<5.0.0
 
 # API Backend (optional)
 fastapi
