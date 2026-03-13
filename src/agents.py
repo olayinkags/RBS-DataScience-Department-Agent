@@ -49,7 +49,7 @@ CONTACTS (use when tools return no results):
 def get_llm():
     """Initialise Gemini with low temperature for factual accuracy."""
     return ChatGoogleGenerativeAI(
-        model="models/gemini-2.5-flash",       
+        model="gemini-2.0-flash-lite",       
         google_api_key=os.getenv("GOOGLE_API_KEY"),
         temperature=0.2,
         convert_system_message_to_human=True,
@@ -154,10 +154,10 @@ def run_agent(agent, question: str, thread_id: str = "default") -> dict:
             is_network_error = any(err in error_str for err in network_errors)
 
             if is_network_error and attempt < max_retries - 1:
-                wait = 2 ** attempt  # 1s → 2s → 4s
+                wait = 2 ** attempt  
                 print(f"Network error on attempt {attempt + 1}, retrying in {wait}s: {error_str}")
                 time.sleep(wait)
-                continue  # retry
+                continue  
 
             # Non-network error or all retries exhausted
             if is_network_error:
