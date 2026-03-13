@@ -49,7 +49,7 @@ CONTACTS (use when tools return no results):
 def get_llm():
     """Initialise Gemini with low temperature for factual accuracy."""
     return ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash-lite",       
+        model="models/gemini-2.5-flash",       
         google_api_key=os.getenv("GOOGLE_API_KEY"),
         temperature=0.2,
         convert_system_message_to_human=True,
