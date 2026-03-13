@@ -1,6 +1,6 @@
 # 🎓 RBS Nigeria — Executive Master in Data Science AI Advisor
 
-An intelligent chatbot that answers questions about the **Executive Master in Data Science Management** at Rome Business School Nigeria — and compares it with the Italy campus.
+An intelligent chatbot that answers questions about the **Executive Master in Data Science Management** at Rome Business School Nigeria, and compares it with the Italy campus.
 
 Built with LangChain Agent + Pinecone + Google Gemini Pro + Streamlit.
 
@@ -11,7 +11,7 @@ Built with LangChain Agent + Pinecone + Google Gemini Pro + Streamlit.
 - Answers any question about the RBS Nigeria programme
 - Compares Nigeria and Italy campuses side by side
 - Searches live web for latest RBS news
-- Shows its reasoning — which tools it used and why
+- Shows its reasoning, which tools it used and why
 - Cites the source of every answer
 
 ---
